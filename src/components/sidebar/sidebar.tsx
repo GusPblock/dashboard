@@ -55,15 +55,13 @@ const AppSidebar: React.FC<Props> = ({
     },
     {
       title: 'AI Marketplace',
-      icon: '/account/trend.png',
-      url: '/ai-marketplace',
-      disabled: true,
+      icon: '/account/market.png',
+      url: '/ai-marketplace'
     },
     {
       title: 'DeFi Vista',
-      icon: '/account/pano.png',
-      url: '/panoranking/solana',
-      disabled: true,
+      icon: '/account/defi-vista.png',
+      url: '/defi-vista',
     },
     {
       title: 'Liquid Swap',
@@ -77,9 +75,9 @@ const AppSidebar: React.FC<Props> = ({
       disabled: false,
     },
     {
-      title: 'Whale Hunting',
+      title: 'Wallet Tracking',
       icon: '/account/wallet.png',
-      url: `/whale-hunting/${actual.toLowerCase()}`,
+      url: '/wallet-tracking',
     },
     {
       title: 'Portfolio',
@@ -117,12 +115,15 @@ const AppSidebar: React.FC<Props> = ({
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.header}>
+      <div className="flex mx-auto mt-4 min-w-[70%] items-center gap-2 z-50 cursor-pointer" onClick={() => router.push('/')}>
         <img
           src="/logo.png"
-          alt=""
-          onClick={() => router.push('/pano-view/bitcoin')}
+          alt="Panorama Block"
+          className="h-10 md:h-12"
         />
+        <span className="text-gray-300 !font-asgard text-sm md:text-base">
+          Panorama Block
+        </span>
       </div>
 
       <div className={styles.body}>
