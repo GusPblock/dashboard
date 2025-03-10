@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import TokenDetailsModal from '@/components/token-details-modal/token-details-modal'
 import styles from './styles.module.scss'
 import Layout from '@/components/layout/Layout'
+import OpenChat from '@/components/open-chat/open-chat'
 
 interface Token {
   name: string;
@@ -28,7 +29,7 @@ const data: WalletData[] = [
       { name: 'Venus (XVS)', amount: '12.5 XVS', value: '$89.37' },
       { name: 'BUSD', amount: '1,240 BUSD', value: '$1,240.00' }
     ],
-    totalTokens: 8,
+    totalTokens: 3,
     balance: 1971.68
   },
   {
@@ -39,7 +40,7 @@ const data: WalletData[] = [
       { name: 'Chainlink (LINK)', amount: '156.2 LINK', value: '$2,187.42' },
       { name: 'Uniswap (UNI)', amount: '89.4 UNI', value: '$589.04' }
     ],
-    totalTokens: 5,
+    totalTokens: 3,
     balance: 7364.61
   },
   {
@@ -49,7 +50,7 @@ const data: WalletData[] = [
       { name: 'Avalanche (AVAX)', amount: '45.8 AVAX', value: '$1,237.14' },
       { name: 'Joe Token (JOE)', amount: '850.4 JOE', value: '$289.13' }
     ],
-    totalTokens: 4,
+    totalTokens: 2,
     balance: 1526.27
   },
   {
@@ -59,7 +60,7 @@ const data: WalletData[] = [
       { name: 'XRP', amount: '4,580 XRP', value: '$2,748.00' },
       { name: 'Coreum (CORE)', amount: '1,250 CORE', value: '$437.50' }
     ],
-    totalTokens: 3,
+    totalTokens: 2,
     balance: 3185.50
   },
   {
@@ -69,7 +70,7 @@ const data: WalletData[] = [
       { name: 'Maker (MKR)', amount: '1.2 MKR', value: '$1,824.00' },
       { name: 'Aave (AAVE)', amount: '4.8 AAVE', value: '$432.96' }
     ],
-    totalTokens: 4,
+    totalTokens: 2,
     balance: 2256.96
   },
   {
@@ -79,7 +80,7 @@ const data: WalletData[] = [
       { name: 'Compound (COMP)', amount: '8.4 COMP', value: '$378.00' },
       { name: 'Lido (LDO)', amount: '245.6 LDO', value: '$589.44' }
     ],
-    totalTokens: 3,
+    totalTokens: 2,
     balance: 967.44
   },
   {
@@ -98,7 +99,7 @@ const data: WalletData[] = [
       { name: 'GMX', amount: '24.5 GMX', value: '$882.00' },
       { name: 'Magic (MAGIC)', amount: '456.8 MAGIC', value: '$438.52' }
     ],
-    totalTokens: 3,
+    totalTokens: 2,
     balance: 1320.52
   }
 ]
@@ -203,7 +204,7 @@ const Page: React.FC = () => {
                 <div
                   className={styles.tableRow}
                   key={`wallet-${index}`}
-                  // onClick={() => handleWalletClick(item)}
+                  onClick={() => handleWalletClick(item)}
                 >
                   <div className={styles.cell}>
                     {/* <input 
@@ -232,6 +233,8 @@ const Page: React.FC = () => {
           tokens={selectedWallet.tokens}
         />
       )}
+
+      <OpenChat />
     </Layout>
   )
 }
