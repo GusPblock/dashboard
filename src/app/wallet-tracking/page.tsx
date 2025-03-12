@@ -6,6 +6,8 @@ import styles from './styles.module.scss'
 import Layout from '@/components/layout/Layout'
 import OpenChat from '@/components/open-chat/open-chat'
 import RangoService from '@/lib/api/services/rango'
+import { Button } from '@/components/ui/button'
+import TrackAddressModal from '@/components/track-address-modal/track-address-modal'
 
 interface Asset {
   blockchain: string;
@@ -35,53 +37,74 @@ interface WalletData {
 const Page: React.FC = () => {
   const [actual, setActual] = useState('Bitcoin')
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedBlockchain, setSelectedBlockchain] = useState('Select blockchain')
-  const [isBlockchainDropdownOpen, setIsBlockchainDropdownOpen] = useState(false)
+  const [isTrackModalOpen, setIsTrackModalOpen] = useState(false)
   const [walletData, setWalletData] = useState<WalletData[]>([])
   const [filteredData, setFilteredData] = useState<WalletData[]>([])
   const [selectedWallet, setSelectedWallet] = useState<WalletData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isTracking, setIsTracking] = useState(false)
 
-  const blockchains = ['Ethereum', 'BSC', 'Polygon', 'Solana']
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const addresses = await RangoService.getAddresses()
+      console.log(addresses)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const addresses = await RangoService.getAddresses()
+      if (addresses && addresses.length > 0) {
+        const walletsData: WalletData[] = await Promise.all(
+          addresses.map(async (address) => {
+            const [network, walletAddress] = address.split('.')
+            try {
+              const tokens = await RangoService.getTokens(address)
 
-        if (addresses) {
-          const walletsData: WalletData[] = await Promise.all(
-            addresses.map(async (addressObj) => {
-              const [network, address] = addressObj.address.split('.')
-              const tokens = await RangoService.getTokens(addressObj.address)
+              // If tokens is an error response or not an array, return empty wallet data
+              if ('error' in tokens || !Array.isArray(tokens)) {
+                return {
+                  address: walletAddress,
+                  network,
+                  tokens: [],
+                  totalTokens: 0,
+                  balance: 0
+                }
+              }
 
-              // Calculate total balance and token count
+              // Calculate total balance and token count for valid token responses
               const totalBalance = tokens.reduce((sum, token) => {
                 const amount = parseFloat(token.amount.amount) / Math.pow(10, token.amount.decimals)
                 return sum + (amount * token.price)
               }, 0)
 
               return {
-                address,
+                address: walletAddress,
                 network,
                 tokens,
                 totalTokens: tokens.length,
                 balance: totalBalance
               }
-            })
-          )
+            } catch (error) {
+              console.error(`Error fetching tokens for address ${address}:`, error)
+              return {
+                address: walletAddress,
+                network,
+                tokens: [],
+                totalTokens: 0,
+                balance: 0
+              }
+            }
+          })
+        )
 
-          setWalletData(walletsData)
-          setFilteredData(walletsData)
-        }
-      } catch (error) {
-        console.error('Error fetching wallet data:', error)
-      } finally {
-        setLoading(false)
+        setWalletData(walletsData)
+        setFilteredData(walletsData)
       }
+    } catch (error) {
+      console.error('Error fetching wallet data:', error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchData()
   }, [])
 
@@ -96,14 +119,21 @@ const Page: React.FC = () => {
     setFilteredData(filtered)
   }
 
-  const handleBlockchainSelect = (blockchain: string) => {
-    setSelectedBlockchain(blockchain)
-    setIsBlockchainDropdownOpen(false)
+  const handleTrackAddress = async (blockchain: string, address: string) => {
+    if (!blockchain || !address) return;
 
-    const filtered = blockchain === 'Select blockchain'
-      ? walletData
-      : walletData.filter(item => item.network.toLowerCase() === blockchain.toLowerCase())
-    setFilteredData(filtered)
+    setIsTracking(true)
+
+    try {
+      const formattedAddress = `${blockchain}.${address}`
+      await RangoService.storeAddress(formattedAddress)
+      setIsTrackModalOpen(false)
+      await fetchData()
+    } catch (error) {
+      console.error('Error tracking address:', error)
+    } finally {
+      setIsTracking(false)
+    }
   }
 
   const handleWalletClick = (wallet: WalletData) => {
@@ -126,39 +156,16 @@ const Page: React.FC = () => {
           <div className="flex justify-between items-center">
             <h1 className="text-xl ml-8 font-bold">Wallet Tracking</h1>
             <div className="flex gap-4">
-              <div
-                className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer relative"
-                onClick={() => setIsBlockchainDropdownOpen(!isBlockchainDropdownOpen)}
+              <Button
+                className='bg-[#3CDFEF46] hover:bg-[#3CDFEF25]'
+                onClick={() => setIsTrackModalOpen(true)}
               >
-                <span>{selectedBlockchain}</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`transform transition-transform ${isBlockchainDropdownOpen ? 'rotate-180' : ''}`}
-                >
-                  <path d="M8 10.5L4 6.5H12L8 10.5Z" fill="#80B1FF" />
-                </svg>
-                {isBlockchainDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-[#121212] border border-[rgba(255,255,255,0.1)] rounded-lg shadow-lg z-10">
-                    {blockchains.map((blockchain) => (
-                      <div
-                        key={blockchain}
-                        className="px-4 py-2 hover:bg-[rgba(255,255,255,0.1)] cursor-pointer text-gray-300"
-                        onClick={() => handleBlockchainSelect(blockchain)}
-                      >
-                        {blockchain}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                Track New Address
+              </Button>
               <div className={styles.search}>
                 <input
                   type="text"
-                  placeholder="Search by address, name or network..."
+                  placeholder="Search by address or network..."
                   value={searchQuery}
                   onChange={handleSearch}
                   className={styles.searchInput}
@@ -196,6 +203,15 @@ const Page: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <TrackAddressModal
+        open={isTrackModalOpen}
+        onClose={() => {
+          setIsTrackModalOpen(false)
+        }}
+        onSubmit={(blockchain, address) => handleTrackAddress(blockchain, address)}
+        isLoading={isTracking}
+      />
 
       {selectedWallet && (
         <TokenDetailsModal

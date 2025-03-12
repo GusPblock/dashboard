@@ -1,4 +1,4 @@
-.dialog {
+.trackDialog {
   .paper {
     background: linear-gradient(
       125deg,
@@ -9,7 +9,6 @@
     border-radius: 16px;
     color: white;
     backdrop-filter: blur(10px);
-    min-height: 400px;
     max-height: 80vh;
     overflow-y: auto;
 
@@ -62,58 +61,9 @@
   padding: 24px !important;
 }
 
-.tokenList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.noTokens {
-  text-align: center;
-  color: rgba(255, 255, 255, 0.5);
-  padding: 24px;
-  font-size: 14px;
-}
-
-.tokenItem {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .tokenIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    padding: 8px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .tokenInfo {
-    flex: 1;
-    
-    h3 {
-      font-size: 16px;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    
-    .tokenDetails {
-      display: flex;
-      justify-content: space-between;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 14px;
-    }
-  }
+.formField {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease-in-out !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
